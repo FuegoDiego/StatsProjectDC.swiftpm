@@ -6,14 +6,16 @@
 //
 
 import Foundation
+import SwiftData
 
-class log {
+@Model
+class Log {
     var day: Int
-    var month: Int
+    var month: String
     var instrument: String
     var amtPractice: Int
     
-    init(day: Int, month: Int, instrument: String, amtPractice: Int) {
+    init(day: Int, month: String, instrument: String, amtPractice: Int) {
         self.day = day
         self.month = month
         self.instrument = instrument
