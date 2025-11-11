@@ -5,7 +5,7 @@ struct ContentView: View {
     @State var selectedDay = 1
     @State var selectedMonth = "January"
     @State var selectedInstrument = "Guitar"
-    @State var selectedAmtTime = 15
+    @State var selectedAmtTime = 15.0
     @State var logList: [Log] = []
     @Query var qLogs: [Log]
     @Environment(\.modelContext) var context
@@ -34,28 +34,39 @@ struct ContentView: View {
                                 .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                 .bold()
                             
-                            if log.amtPractice % 60 == 0 {
+                            if Double(log.amtPractice) / 60.0 == 1.0 {
+                                Text(
+                                    "Practiced for \(log.amtPractice/60) hour"
+                                )
+                                .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
+                                .bold()
+                                
+                            } else if log.amtPractice > 60 && log.amtPractice % 60 == 0{
+                                
                                 Text(
                                     "Practiced for \(log.amtPractice/60) hours"
                                 )
                                 .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                 .bold()
                                 
-                            } else if Double(log.amtPractice) / 60 > 1 {
+                            } else if Double(log.amtPractice) / 60.0 > 1.0 {
                                 Text(
-                                    "Practiced for \(Double(log.amtPractice)/60, specifier: "%.1f") hours"
+                                    "Practiced for \((Double(log.amtPractice)/60.0), specifier: "%.2f") hours"
                                 )
                                 .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                 .bold()
                                 
-                            } else {
-                                Text("Practiced for \(log.amtPractice) minutes")
+                            }else{
+                                Text("Practiced for \(Int(log.amtPractice)) minutes")
                                     .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                     .bold()
                             }
-                        
+                            if qLogs.count == 0{
+                                Text("No logs")
+                            }
                         }
                         .listRowBackground(Color.black)
+                        
                     }
                     .onDelete(perform: deleteLog)
                     

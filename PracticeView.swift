@@ -16,10 +16,13 @@ struct PracticeView: View {
     @State var allMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     @State var instruments = ["Guitar", "Violin", "Flute", "Clarinet", "Saxophone", "Trumpet", "French Horn", "Trombone", "Drum Set", "Piano"]
     @State var amtOfTimes = [15, 30, 45, 60, 90, 120, 150, 180]
+    @State var a = 0.0
+    @State var logCheck = false
+    @Query var qLogs: [Log]
     @Environment(\.modelContext) var context
     @Binding var logList: [Log]
     @Binding var selectedInstrument: String
-    @Binding var selectedAmtTime: Int
+    @Binding var selectedAmtTime: Double
     //Gemini
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -63,8 +66,16 @@ struct PracticeView: View {
             Text("Select the amount of time practiced")
                 .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
                 .bold()
+            
+            Slider(value: $selectedAmtTime, in: 15...180, step: 15){
         
-            Picker("Select Amount Time", selection: $selectedAmtTime){
+            }
+            Text("\(selectedAmtTime, specifier: "%.0f") minutes")
+                .foregroundStyle(.white)
+                .bold()
+            
+        
+            /*Picker("Select Amount Time", selection: $selectedAmtTime){
                 ForEach(amtOfTimes, id: \.self){ i in
                     if(i%60 == 0){
                         Text("\(i/60) hours")
@@ -77,16 +88,25 @@ struct PracticeView: View {
                             .tag(i)
                     }
                 }
-            }
+            }*/
             
             Spacer()
                 .frame(width: 1, height: 30)
             
             Button("Add Log"){
-                logList.append(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: selectedAmtTime))
-                context.insert(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: selectedAmtTime))
-                try? context.save()
-                dismiss()
+                let temp = Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded()))
+                if checkLog(l: temp){
+                    logList.append(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded())))
+                    context.insert(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded())))
+                    try? context.save()
+                    print(Int(selectedAmtTime))
+                    print(selectedAmtTime)
+                    print(selectedAmtTime.rounded())
+                    dismiss()
+                }else{
+                    logCheck = true
+                }
+                
             }
             .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
             .bold()
@@ -94,6 +114,17 @@ struct PracticeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
+        .alert("Date already exists", isPresented: $logCheck){
+            
+        }
+    }
+    func checkLog(l: Log)-> Bool{
+        for log in qLogs{
+            if(l.month == log.month && l.day == l.day){
+                return false
+            }
+        }
+        return true
     }
 }
 
