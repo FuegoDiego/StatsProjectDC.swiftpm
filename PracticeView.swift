@@ -23,6 +23,7 @@ struct PracticeView: View {
     @Binding var logList: [Log]
     @Binding var selectedInstrument: String
     @Binding var selectedAmtTime: Double
+    @Binding var selectedPiece: String
     //Gemini
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -50,7 +51,9 @@ struct PracticeView: View {
                 }
                 .accentColor(.white)
                 .bold()
+            
             }
+            
             Text("Select instrument")
                 .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
                 .bold()
@@ -94,18 +97,18 @@ struct PracticeView: View {
                 .frame(width: 1, height: 30)
             
             Button("Add Log"){
-                let temp = Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded()))
-                if checkLog(l: temp){
-                    logList.append(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded())))
-                    context.insert(Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded())))
+                let temp = Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded()), pieceName: selectedPiece)
+                //if checkLog(l: temp){
+                    logList.append(temp)
+                    context.insert(temp)
                     try? context.save()
-                    print(Int(selectedAmtTime))
+                    /*print(Int(selectedAmtTime))
                     print(selectedAmtTime)
-                    print(selectedAmtTime.rounded())
+                    print(selectedAmtTime.rounded())*/
                     dismiss()
-                }else{
-                    logCheck = true
-                }
+                //}else{
+                    //logCheck = true
+                //}
                 
             }
             .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
@@ -129,5 +132,5 @@ struct PracticeView: View {
 }
 
 #Preview {
-    PracticeView(selectedDay: .constant(1), selectedMonth: .constant("January"), logList: .constant([Log(day: 1, month: "January", instrument: "French Horn", amtPractice: 15)]), selectedInstrument: .constant("French Horn"), selectedAmtTime: .constant(5))
+    PracticeView(selectedDay: .constant(1), selectedMonth: .constant("January"), logList: .constant([Log(day: 1, month: "January", instrument: "French Horn", amtPractice: 15, pieceName: "")]), selectedInstrument: .constant("French Horn"), selectedAmtTime: .constant(5), selectedPiece: .constant(""))
 }

@@ -6,3 +6,15 @@
 //
 
 import Foundation
+
+class Tech {
+    var techList: [Int]
+    
+    init() {
+        techList = []
+    }
+    
+    func addTech(t: Int){
+        techList.append(t)
+    }
+}

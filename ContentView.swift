@@ -4,9 +4,11 @@ import SwiftUI
 struct ContentView: View {
     @State var selectedDay = 1
     @State var selectedMonth = "January"
+    @State var logList: [Log] = []
     @State var selectedInstrument = "Guitar"
     @State var selectedAmtTime = 15.0
-    @State var logList: [Log] = []
+   
+    @State var selectedPiece = ""
     @Query var qLogs: [Log]
     @State var weeklyStreak = 0
     @State var dailyStreak = 0
@@ -66,6 +68,7 @@ struct ContentView: View {
                             if qLogs.count == 0{
                                 Text("No logs")
                             }
+                            
                         }
                         .listRowBackground(Color.black)
                         
@@ -83,11 +86,14 @@ struct ContentView: View {
                         selectedMonth: $selectedMonth,
                         logList: $logList,
                         selectedInstrument: $selectedInstrument,
-                        selectedAmtTime: $selectedAmtTime
+                        selectedAmtTime: $selectedAmtTime,
+                        selectedPiece: $selectedPiece
                     )
                 }
                 .foregroundColor(.white)
                 .bold()
+                
+                
                 
                 Text("Weekly streak of \(weeklyStreak)")
                     .foregroundColor(.white)
@@ -97,6 +103,18 @@ struct ContentView: View {
                     .bold()
             }
             .background(Color.black)
+            .onAppear(){
+                calculateStreaks()
+                print("\(dailyStreak)")
+                print("\(weeklyStreak)")
+                print("\(qLogs.count)")
+            }
+        }
+        .onAppear(){
+            calculateStreaks()
+            print("\(dailyStreak)")
+            print("\(weeklyStreak)")
+            print("\(qLogs.count)")
         }
         
     }
@@ -108,7 +126,10 @@ struct ContentView: View {
         }
     }
     func calculateStreaks(){
-       
+        if qLogs.count == 1{
+            weeklyStreak = 1
+            dailyStreak = 1
+        }
         if qLogs.count > 1{
             for i in 0..<qLogs.count-1{
                 if qLogs[i].month == qLogs[i+1].month{
@@ -130,19 +151,61 @@ struct ContentView: View {
             }
         }
     }
-    func checkMonths(log1: Log, log2: Log)-> Bool{
-        let allMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-        var x = 0
-        var y = 0
-        var z = 0
-        for month in allMonths{
-            if(log1.month == month){
-                x = z
+    /* func calculateStreaks(){
+        // Initializing streaks for a single log case
+        if qLogs.count == 1 {
+            weeklyStreak = 1
+            dailyStreak = 1
+             // Added return for early exit
+        }
+        
+        // Logic for multiple logs
+        if qLogs.count > 1 {
+            for i in 0..<qLogs.count - 1 {
+                let log1 = qLogs[i]
+                let log2 = qLogs[i+1]
+                
+                var dayDifference: Int
+                
+                if log1.month == log2.month {
+                    // Case 1: Same month
+                    dayDifference = log2.day - log1.day
+                } else if checkMonths(log1: log1, log2: log2)true {
+                    // Case 2: Different months (using helper function)
+                    // Note: The logic below is what was causing the most trouble.
+                    // We assume chckMonth returns the number of days to add for month wrap
+                    let daysToAdjust = chckMonth(log: log2)
+                    dayDifference = (log2.day + daysToAdjust) - log1.day
+                } else {
+                    // If months are different but checkMonths is false, skip or handle
+                    continue
+                }
+                
+                // Check for Weekly Streak (between 7 and 14 days)
+                if dayDifference >= 7 && dayDifference <= 14 {
+                    weeklyStreak += 1
+                }
+                
+                // Check for Daily Streak (exactly 1 day)
+                if dayDifference == 1 {
+                    dailyStreak += 1
+                }
             }
-            if(log2.month == month){
-                y = z
+        }
+    }
+    /**/*/func checkMonths(log1: Log, log2: Log)-> Bool{
+        var allMonths: [String] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        var x: Int = 0
+        var y: Int = 0
+        
+        for i in 0..<allMonths.count{
+            if(log1.month == allMonths[i]){
+                x = i
             }
-            z += 1
+            if(log2.month == allMonths[i]){
+                y = i
+            }
+            
         }
         if(y - x == 1){
             return true
@@ -150,6 +213,7 @@ struct ContentView: View {
             return false
         }
     }
+    
     func chckMonth(log: Log)-> Int{
         let thirtyOneMonths = ["January", "March", "May", "July", "August", "October", "December"]
         let thirtyMonths = ["April", "June", "September", "November"]
