@@ -12,6 +12,7 @@ import SwiftData
 struct PracticeView: View {
     @Binding var selectedDay: Int
     @Binding var selectedMonth: String
+    @Binding var selectedDate: Date
     @State var days = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
     @State var allMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     @State var instruments = ["Guitar", "Violin", "Flute", "Clarinet", "Saxophone", "Trumpet", "French Horn", "Trombone", "Drum Set", "Piano"]
@@ -24,6 +25,8 @@ struct PracticeView: View {
     @Binding var selectedInstrument: String
     @Binding var selectedAmtTime: Double
     @Binding var selectedPiece: String
+    @Binding var selectedTech: Double
+    
     //Gemini
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -31,8 +34,9 @@ struct PracticeView: View {
             Text("Please enter date")
                 .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
                 .bold()
-            HStack{
-                Picker("Select Day", selection: $selectedDay){
+            VStack{
+                
+                /*Picker("Select Day", selection: $selectedDay){
                     ForEach(days, id: \.self){ i in
                         Text("\(days[i-1])")
                             .tag(i)
@@ -50,7 +54,20 @@ struct PracticeView: View {
                     }
                 }
                 .accentColor(.white)
-                .bold()
+                .bold()*/
+                
+                ZStack{
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: 200, height:30)
+                        
+                    DatePicker("", selection: $selectedDate)
+                        .labelsHidden()
+                        .accentColor(.white)
+                        .datePickerStyle(.compact)
+                }
+                
+                
             
             }
             
@@ -77,7 +94,14 @@ struct PracticeView: View {
                 .foregroundStyle(.white)
                 .bold()
             
-        
+            TextField("Enter the name of the piece practiced", text: $selectedPiece)
+                .foregroundStyle(.white)
+                .bold()
+            
+            Slider(value: $selectedTech, in: 1...10)
+            Text("\(selectedTech, specifier: "%.0f")")
+                .foregroundStyle(.white)
+                .bold()
             /*Picker("Select Amount Time", selection: $selectedAmtTime){
                 ForEach(amtOfTimes, id: \.self){ i in
                     if(i%60 == 0){
@@ -97,7 +121,7 @@ struct PracticeView: View {
                 .frame(width: 1, height: 30)
             
             Button("Add Log"){
-                let temp = Log(day: selectedDay, month: selectedMonth, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded()), pieceName: selectedPiece)
+                let temp = Log(day: selectedDay, month: selectedMonth, date: selectedDate, instrument: selectedInstrument, amtPractice: Int(selectedAmtTime.rounded()), pieceName: selectedPiece, techs: Int(selectedTech))
                 //if checkLog(l: temp){
                     logList.append(temp)
                     context.insert(temp)
@@ -132,5 +156,5 @@ struct PracticeView: View {
 }
 
 #Preview {
-    PracticeView(selectedDay: .constant(1), selectedMonth: .constant("January"), logList: .constant([Log(day: 1, month: "January", instrument: "French Horn", amtPractice: 15, pieceName: "")]), selectedInstrument: .constant("French Horn"), selectedAmtTime: .constant(5), selectedPiece: .constant(""))
+    PracticeView(selectedDay: .constant(1), selectedMonth: .constant("January"), selectedDate: .constant(Date()), logList: .constant([Log(day: 1, month: "January", instrument: "French Horn", amtPractice: 15, pieceName: "")]), selectedInstrument: .constant("French Horn"), selectedAmtTime: .constant(5), selectedPiece: .constant(""), selectedTech: .constant(0.0))
 }

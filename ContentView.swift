@@ -4,14 +4,16 @@ import SwiftUI
 struct ContentView: View {
     @State var selectedDay = 1
     @State var selectedMonth = "January"
+    @State var selectedDate = Date()
     @State var logList: [Log] = []
     @State var selectedInstrument = "Guitar"
     @State var selectedAmtTime = 15.0
-   
     @State var selectedPiece = ""
     @Query var qLogs: [Log]
+    @State var selectedTech = 0.0
     @State var weeklyStreak = 0
     @State var dailyStreak = 0
+    
     @Environment(\.modelContext) var context
     var body: some View {
         //Gold: Color(red: 212/255, green: 175/255, blue: 55/255)
@@ -26,11 +28,15 @@ struct ContentView: View {
                     ForEach(qLogs) { log in
                         
                         VStack(alignment: .leading) {
-                            Text(log.month + " \(log.day)")
+                            Text("\(log.date.formatted(.dateTime.month().day()))")
                                 .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                 .bold()
-                                .font(.title3)
+                                .font(.title2)
                             Text("-------------")
+                                .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
+                                .bold()
+                                .font(.title2)
+                            Text("Piece: " + log.pieceName)
                                 .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                 .bold()
                                 .font(.title3)
@@ -65,6 +71,7 @@ struct ContentView: View {
                                     .foregroundColor(Color(red: 212/255, green: 175/255, blue: 55/255))
                                     .bold()
                             }
+                            
                             if qLogs.count == 0{
                                 Text("No logs")
                             }
@@ -75,19 +82,24 @@ struct ContentView: View {
                     }
                     .onDelete(perform: deleteLog)
                     
+                    
 
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color(red: 64/255, green: 64/255, blue: 64/255))
-
+                
+                
+                
                 NavigationLink("Add a Log +") {
                     PracticeView(
                         selectedDay: $selectedDay,
                         selectedMonth: $selectedMonth,
+                        selectedDate: $selectedDate,
                         logList: $logList,
                         selectedInstrument: $selectedInstrument,
                         selectedAmtTime: $selectedAmtTime,
-                        selectedPiece: $selectedPiece
+                        selectedPiece: $selectedPiece,
+                        selectedTech: $selectedTech
                     )
                 }
                 .foregroundColor(.white)
@@ -98,9 +110,26 @@ struct ContentView: View {
                 Text("Weekly streak of \(weeklyStreak)")
                     .foregroundColor(.white)
                     .bold()
-                Text("Daily streak of \(dailyStreak)")
-                    .foregroundColor(.white)
-                    .bold()
+                if dailyStreak >= 5 && dailyStreak < 15{
+                    Text("Daily streak of \(dailyStreak) 🔥")
+                        .foregroundColor(.white)
+                        .bold()
+                }else if dailyStreak >= 15{
+                    Text("Daily streak of \(dailyStreak) 🔥🔥🔥")
+                        .foregroundColor(.white)
+                        .bold()
+                }else{
+                    Text("Daily streak of \(dailyStreak)")
+                        .foregroundColor(.white)
+                        .bold()
+                }
+                
+                if qLogs.count > 0{
+                    Text("Techichal skills out of 10: \(averageTech(), specifier: "%.1f")")
+                        .foregroundColor(.white)
+                        .bold()
+                }
+                
             }
             .background(Color.black)
             .onAppear(){
@@ -125,7 +154,7 @@ struct ContentView: View {
             try? context.save()
         }
     }
-    func calculateStreaks(){
+    /*func calculateStreaks(){
         if qLogs.count == 1{
             weeklyStreak = 1
             dailyStreak = 1
@@ -150,83 +179,91 @@ struct ContentView: View {
                 }
             }
         }
-    }
-    /* func calculateStreaks(){
-        // Initializing streaks for a single log case
-        if qLogs.count == 1 {
-            weeklyStreak = 1
-            dailyStreak = 1
-             // Added return for early exit
-        }
-        
-        // Logic for multiple logs
-        if qLogs.count > 1 {
-            for i in 0..<qLogs.count - 1 {
-                let log1 = qLogs[i]
-                let log2 = qLogs[i+1]
+    }*/
+     func calculateStreaks(){
+         dailyStreak = 1
+         weeklyStreak = 1
+        for i in qLogs.indices.dropLast(){
+            //ChatGPT
+            let calendar = Calendar.current
+            let day = calendar.component(.day, from: qLogs[i].date)
+            let month = calendar.component(.month, from: qLogs[i].date)
+            let year = calendar.component(.year, from: qLogs[i].date)
+            //
+            
+            let day2 = calendar.component(.day, from: qLogs[i+1].date)
+            let month2 = calendar.component(.month, from: qLogs[i+1].date)
+            let year2 = calendar.component(.year, from: qLogs[i+1].date)
+            
+            let ogDate: Date = qLogs[0].date
+            
+            if year == year2{
                 
-                var dayDifference: Int
-                
-                if log1.month == log2.month {
-                    // Case 1: Same month
-                    dayDifference = log2.day - log1.day
-                } else if checkMonths(log1: log1, log2: log2)true {
-                    // Case 2: Different months (using helper function)
-                    // Note: The logic below is what was causing the most trouble.
-                    // We assume chckMonth returns the number of days to add for month wrap
-                    let daysToAdjust = chckMonth(log: log2)
-                    dayDifference = (log2.day + daysToAdjust) - log1.day
-                } else {
-                    // If months are different but checkMonths is false, skip or handle
-                    continue
+                if month == month2{
+                    if day2 - day == 1{
+                        dailyStreak += 1
+                    }else{
+                        dailyStreak = 1
+                    }
+                    if day2 - day <= 14 && day2 - day >= 7{
+                        weeklyStreak += 1
+                    }else if day2 - day >= 14{
+                        weeklyStreak = 1
+                    }
+                }else{
+                    if (day2 + checkMonths(mont: month)) - day == 1{
+                        dailyStreak += 1
+                    }else{
+                        dailyStreak = 1
+                    }
+                    if (day2 + checkMonths(mont: month)) - day <= 14 && (day2 + checkMonths(mont: month)) - day >= 7{
+                        weeklyStreak += 1
+                    }else if (day2 + checkMonths(mont: month)) - day >= 14{
+                        weeklyStreak = 1
+                    }
                 }
-                
-                // Check for Weekly Streak (between 7 and 14 days)
-                if dayDifference >= 7 && dayDifference <= 14 {
-                    weeklyStreak += 1
+            }else{
+                if(month == 12 && month2 == 1){
+                    if (day2 + 31) - day == 1{
+                        dailyStreak += 1
+                    }else{
+                        dailyStreak = 1
+                    }
+                    if (day2 + 31) - day <= 14 && (day2 + 31) - day >= 7{
+                        weeklyStreak += 1
+                    }else if (day2 + 31) - day >= 14 {
+                        weeklyStreak = 1
+                    }
                 }
-                
-                // Check for Daily Streak (exactly 1 day)
-                if dayDifference == 1 {
-                    dailyStreak += 1
-                }
-            }
-        }
-    }
-    /**/*/func checkMonths(log1: Log, log2: Log)-> Bool{
-        var allMonths: [String] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-        var x: Int = 0
-        var y: Int = 0
-        
-        for i in 0..<allMonths.count{
-            if(log1.month == allMonths[i]){
-                x = i
-            }
-            if(log2.month == allMonths[i]){
-                y = i
             }
             
         }
-        if(y - x == 1){
-            return true
+        
+         if(qLogs.count == 1){
+             dailyStreak = 1
+             weeklyStreak = 1
+             print("New Streak")
+         }
+         if(qLogs.count == 0){
+             dailyStreak = 0
+             weeklyStreak = 0
+             print("No Streak")
+         }
+    }
+    func checkMonths(mont: Int)-> Int{
+        if mont == 1 || mont == 3 || mont == 5 || mont == 7 || mont == 8 || mont == 10 || mont == 12{
+            return 31
+        }else if mont == 4 || mont == 6 || mont == 9 || mont == 11{
+            return 30
         }else{
-            return false
+            return 28
         }
     }
-    
-    func chckMonth(log: Log)-> Int{
-        let thirtyOneMonths = ["January", "March", "May", "July", "August", "October", "December"]
-        let thirtyMonths = ["April", "June", "September", "November"]
-        for month in thirtyOneMonths{
-            if log.month == month{
-                return 31
-            }
+    func averageTech()-> Double{
+        var total = 0.0
+        for log in qLogs{
+            total += Double(log.techs)
         }
-        for month in thirtyMonths{
-            if log.month == month{
-                return 31
-            }
-        }
-        return 28
+        return total/Double(qLogs.count)
     }
 }

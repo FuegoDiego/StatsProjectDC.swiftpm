@@ -6,15 +6,13 @@
 //
 
 import Foundation
+import SwiftData
 
+@Model
 class Tech {
-    var techList: [Int]
+    var techNum: Int
     
-    init() {
-        techList = []
-    }
-    
-    func addTech(t: Int){
-        techList.append(t)
+    init(techNum: Int) {
+        self.techNum = techNum
     }
 }

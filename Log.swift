@@ -12,17 +12,28 @@ import SwiftData
 class Log {
     var day: Int
     var month: String
+    var date: Date
     var instrument: String
     var amtPractice: Int
     var pieceName: String
-    var techs: Tech
+    var techs: Int
     
-    init(day: Int, month: String, instrument: String, amtPractice: Int, pieceName: String) {
+    init(day: Int, month: String, date: Date, instrument: String, amtPractice: Int, pieceName: String, techs: Int) {
         self.day = day
         self.month = month
+        self.date = date
         self.instrument = instrument
         self.amtPractice = amtPractice
         self.pieceName = pieceName
-        techs = Tech()
+        self.techs = techs
+    }
+    init(day: Int, month: String, instrument: String, amtPractice: Int, pieceName: String) {
+        self.day = day
+        self.month = month
+        date = Date()
+        self.instrument = instrument
+        self.amtPractice = amtPractice
+        self.pieceName = pieceName
+        techs = 0
     }
 }
