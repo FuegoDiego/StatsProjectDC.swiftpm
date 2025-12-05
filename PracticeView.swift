@@ -93,10 +93,19 @@ struct PracticeView: View {
             Text("\(selectedAmtTime, specifier: "%.0f") minutes")
                 .foregroundStyle(.white)
                 .bold()
+            Text("Enter the name of the piece practiced")
+                .foregroundStyle(Color(red: 212/255, green: 175/255, blue: 55/255))
+                .bold()
             
             TextField("Enter the name of the piece practiced", text: $selectedPiece)
                 .foregroundStyle(.white)
                 .bold()
+                .multilineTextAlignment(.center)
+                .overlay(){
+                    Capsule()
+                        .stroke(.white)
+                        .frame(width: 300, height: 30)
+                }
             
             Slider(value: $selectedTech, in: 1...10)
             Text("\(selectedTech, specifier: "%.0f")")

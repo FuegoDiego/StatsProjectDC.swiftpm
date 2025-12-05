@@ -9,7 +9,7 @@ struct ContentView: View {
     @State var selectedInstrument = "Guitar"
     @State var selectedAmtTime = 15.0
     @State var selectedPiece = ""
-    @Query var qLogs: [Log]
+    @Query(sort: \Log.date, order: .forward) var qLogs: [Log]
     @State var selectedTech = 0.0
     @State var weeklyStreak = 0
     @State var dailyStreak = 0
@@ -88,28 +88,38 @@ struct ContentView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color(red: 64/255, green: 64/255, blue: 64/255))
                 
+                Spacer()
+                    .frame(width: 10, height: 20)
                 
-                
-                NavigationLink("Add a Log +") {
-                    PracticeView(
-                        selectedDay: $selectedDay,
-                        selectedMonth: $selectedMonth,
-                        selectedDate: $selectedDate,
-                        logList: $logList,
-                        selectedInstrument: $selectedInstrument,
-                        selectedAmtTime: $selectedAmtTime,
-                        selectedPiece: $selectedPiece,
-                        selectedTech: $selectedTech
-                    )
-                }
-                .foregroundColor(.white)
-                .bold()
-                
-                
-                
-                Text("Weekly streak of \(weeklyStreak)")
+                ZStack {
+                    
+                    NavigationLink("Add a Log +") {
+                        PracticeView(
+                            selectedDay: $selectedDay,
+                            selectedMonth: $selectedMonth,
+                            selectedDate: $selectedDate,
+                            logList: $logList,
+                            selectedInstrument: $selectedInstrument,
+                            selectedAmtTime: $selectedAmtTime,
+                            selectedPiece: $selectedPiece,
+                            selectedTech: $selectedTech
+                        )
+                    }
                     .foregroundColor(.white)
                     .bold()
+                    .overlay(){
+                        Capsule()
+                            .stroke(.white, lineWidth: 2)
+                            .frame(width: 140, height: 60)
+                    }
+                }
+                
+                Spacer()
+                    .frame(width: 10, height: 20)
+                
+                /*Text("Weekly streak of \(weeklyStreak)")
+                    .foregroundColor(.white)
+                    .bold()*/
                 if dailyStreak >= 5 && dailyStreak < 15{
                     Text("Daily streak of \(dailyStreak) 🔥")
                         .foregroundColor(.white)
@@ -128,6 +138,25 @@ struct ContentView: View {
                     Text("Techichal skills out of 10: \(averageTech(), specifier: "%.1f")")
                         .foregroundColor(.white)
                         .bold()
+                }
+                
+                Button{
+                    for log in qLogs {
+                        context.delete(log)
+                    }
+                    try? context.save()
+                } label: {
+                    ZStack {
+                        Capsule()
+                            .fill(.red)
+                            .frame(width: 100, height: 20)
+                            
+                        Text("Delete All")
+                            .foregroundStyle(.white)
+                            .bold()
+                        
+                            
+                    }
                 }
                 
             }
